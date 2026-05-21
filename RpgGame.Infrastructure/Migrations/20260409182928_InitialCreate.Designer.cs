@@ -36,7 +36,7 @@ namespace RpgGame.Infrastructure.Migrations
                     b.Property<DateTime>("DefeatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<int>("ExperienceEarned")
                         .HasColumnType("integer");
@@ -62,7 +62,7 @@ namespace RpgGame.Infrastructure.Migrations
                     b.Property<DateTime>("AcquiredAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<bool>("IsEquipped")
                         .ValueGeneratedOnAdd()
@@ -92,7 +92,7 @@ namespace RpgGame.Infrastructure.Migrations
                     b.Property<DateTime>("CompletedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.HasKey("PlayerId", "QuestId");
 

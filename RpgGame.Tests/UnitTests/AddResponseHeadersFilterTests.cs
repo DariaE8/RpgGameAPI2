@@ -29,6 +29,28 @@ public class AddResponseHeadersFilterTests
         operation.Responses.Should().ContainKey("500");
     }
 
+    [Fact]
+    public void Apply_ShouldAddXServerIdHeaderToAllResponses()
+    {
+        // Arrange
+        var filter = new RpgGame.API.Filters.AddResponseHeadersFilter();
+        var operation = new OpenApiOperation();
+        var context = CreateOperationFilterContext();
+
+        // Act
+        filter.Apply(operation, context);
+
+        // Assert
+        operation.Responses.Should().NotBeNull();
+        foreach (var response in operation.Responses)
+        {
+            response.Value.Headers.Should().ContainKey("X-Server-Id");
+            var header = response.Value.Headers["X-Server-Id"];
+            header.Description.Should().Be("Идентификатор сервера (контейнера), обработавшего запрос");
+            header.Schema.Type.Should().Be("string");
+        }
+    }
+
     private static OperationFilterContext CreateOperationFilterContext()
     {
         var methodInfo = typeof(object).GetMethod("ToString")!;

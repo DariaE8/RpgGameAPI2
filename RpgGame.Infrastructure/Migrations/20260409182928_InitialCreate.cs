@@ -138,7 +138,7 @@ namespace RpgGame.Infrastructure.Migrations
                 {
                     PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
                     EnemyId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DefeatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    DefeatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
                     ExperienceEarned = table.Column<int>(type: "integer", nullable: false),
                     GoldEarned = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -165,7 +165,7 @@ namespace RpgGame.Infrastructure.Migrations
                 {
                     PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AcquiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    AcquiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
                     IsEquipped = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false, defaultValue: 1)
                 },
@@ -192,7 +192,7 @@ namespace RpgGame.Infrastructure.Migrations
                 {
                     PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
                     QuestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()")
+                    CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()")
                 },
                 constraints: table =>
                 {

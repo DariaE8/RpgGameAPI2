@@ -14,6 +14,7 @@ using RpgGame.API.Middleware;
 using RpgGame.Core.Exceptions;
 using RpgGame.API.Filters;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Prometheus;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +32,7 @@ builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssembly(typeof(CreatePlayerDtoValidator).Assembly);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(GameMappingProfile));
+builder.Services.AddHealthChecks();
 
 // Лог
 builder.Logging.AddConsole();
@@ -71,7 +73,11 @@ builder.Services.AddScoped<IGameLocationService, GameLocationService>();
 
 var app = builder.Build();
 
+app.UseHttpMetrics();
+app.UseMiddleware<ServerIdMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>();
+app.MapHealthChecks("/health");
+app.MapMetrics();
 
 using (var scope = app.Services.CreateScope())
 {

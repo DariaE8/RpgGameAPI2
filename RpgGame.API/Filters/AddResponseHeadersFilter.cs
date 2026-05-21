@@ -11,24 +11,30 @@ namespace RpgGame.API.Filters
             operation.Responses ??= new OpenApiResponses();
 
             // стандартные коды ответов
-            if (!operation.Responses.ContainsKey("200"))
+            AddOrUpdateResponse(operation, "200", "Success");
+            AddOrUpdateResponse(operation, "400", "Bad Request - Validation error");
+            AddOrUpdateResponse(operation, "404", "Not Found");
+            AddOrUpdateResponse(operation, "500", "Internal Server Error");
+        }
+
+        private static void AddOrUpdateResponse(OpenApiOperation operation, string statusCode, string description)
+        {
+            if (!operation.Responses.ContainsKey(statusCode))
             {
-                operation.Responses.Add("200", new OpenApiResponse { Description = "Success" });
+                operation.Responses.Add(statusCode, new OpenApiResponse { Description = description });
             }
-            
-            if (!operation.Responses.ContainsKey("400"))
+
+            var response = operation.Responses[statusCode];
+            response.Headers ??= new Dictionary<string, OpenApiHeader>();
+
+            // Добавляем заголовок X-Server-Id, если его ещё нет
+            if (!response.Headers.ContainsKey("X-Server-Id"))
             {
-                operation.Responses.Add("400", new OpenApiResponse { Description = "Bad Request - Validation error" });
-            }
-            
-            if (!operation.Responses.ContainsKey("404"))
-            {
-                operation.Responses.Add("404", new OpenApiResponse { Description = "Not Found" });
-            }
-            
-            if (!operation.Responses.ContainsKey("500"))
-            {
-                operation.Responses.Add("500", new OpenApiResponse { Description = "Internal Server Error" });
+                response.Headers.Add("X-Server-Id", new OpenApiHeader
+                {
+                    Description = "Идентификатор сервера (контейнера), обработавшего запрос",
+                    Schema = new OpenApiSchema { Type = "string" }
+                });
             }
         }
     }
