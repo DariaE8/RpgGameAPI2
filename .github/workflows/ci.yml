@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -39,3 +39,15 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/rpggame-api:latest
             ${{ secrets.DOCKER_USERNAME }}/rpggame-api:${{ github.sha }}
+
+  deploy:
+    needs: docker-build-push
+    runs-on: self-hosted
+    steps:
+      - name: Deploy to Local Machine
+        shell: powershell
+        run: |
+          cd "D:\itmo\веб-разработка\RpgGameAPI2"
+          docker compose down
+          docker compose pull
+          docker compose up -d
