@@ -44,6 +44,7 @@ jobs:
     needs: docker-build-push
     runs-on: self-hosted
     steps:
+      - uses: actions/checkout@v4
       - name: Deploy to Local Machine
         shell: powershell
         run: |
