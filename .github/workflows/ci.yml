@@ -47,7 +47,7 @@ jobs:
       - name: Deploy to Local Machine
         shell: powershell
         run: |
-          cd "D:\itmo\веб-разработка\RpgGameAPI2"
+          cd "${{ github.workspace }}"
           docker compose down
           docker compose pull
           docker compose up -d
