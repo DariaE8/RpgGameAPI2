@@ -16,8 +16,8 @@ jobs:
       - name: Build and Test
         run: |
           dotnet restore
-          dotnet build --configuration Release --no-restore
-          dotnet test --no-restore --verbosity normal
+          dotnet build --configuration Release
+          dotnet test --no-restore
 
   docker-build-push:
     needs: build
@@ -38,15 +38,12 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/rpggame-api:latest
 
   deploy:
-    needs: docker-build-push 
-    runs-on: self-hosted 
+    needs: docker-build-push
+    runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: Restart Application
         run: docker compose up -d --build
-
       - name: Run Acceptance Gate
-        shell: powershell
         run: ./scripts/verify.ps1
+        shell: powershell
