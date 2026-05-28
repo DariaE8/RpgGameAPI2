@@ -1,29 +1,31 @@
 $ErrorActionPreference = "Stop"
-$prometheusUrl = "http://localhost:9090/api/v1/query"
+# Используем прямой IP-адрес для исключения проблем с резолвингом localhost
+$prometheusUrl = "http://127.0.0.1:9090/api/v1/query"
 
-# Используем метрику, которая точно есть в вашем списке (http_requests_in_progress)
-# или попробуйте http_requests_total, если она появится позже
-$query = 'http_requests_in_progress'
+Write-Host "--- Starting Diagnostic Verification ---"
 
 try {
-    $response = Invoke-RestMethod -Uri "$prometheusUrl?query=$query" -Method Get
+    # Прямая передача запроса через параметры для безопасности
+    $params = @{
+        Uri    = $prometheusUrl
+        Method = "Get"
+        # Запрос 'up' возвращает 1, если таргет доступен
+        Body   = @{ query = "up" }
+    }
     
-    if ($response.status -ne "success") {
-        Write-Host "Prometheus error"
-        exit 1
-    }
-
-    $results = $response.data.result
-    if ($null -eq $results -or $results.Count -eq 0) {
-        Write-Host "No data found for query $query"
-        # Пока данные не настроены, не будем ломать пайплайн
-        exit 0 
-    }
-
-    Write-Host "Verification successful!"
+    $response = Invoke-RestMethod @params
+    
+    Write-Host "Successfully connected to Prometheus!"
+    Write-Host "Result count: $($response.data.result.Count)"
+    
     exit 0
 }
 catch {
-    Write-Host "Connection failed: $($_.Exception.Message)"
+    Write-Host "!!! VERIFICATION FAILED !!!" -ForegroundColor Red
+    Write-Host "Exception Message: $($_.Exception.Message)" -ForegroundColor Red
+    # Если есть детали ошибки, выводим их
+    if ($_.ErrorDetails) {
+        Write-Host "Error Details: $($_.ErrorDetails.Message)" -ForegroundColor Red
+    }
     exit 1
 }
