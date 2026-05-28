@@ -19,7 +19,7 @@ jobs:
           dotnet build --configuration Release --no-restore
           dotnet test --no-restore --verbosity normal
 
-  
+  docker-build-push:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -41,15 +41,12 @@ jobs:
     needs: docker-build-push 
     runs-on: self-hosted 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Restart Application
-        run: |
-          # Используем --build, чтобы гарантированно обновить контейнеры 
-          # даже если образ в реестре не обновился
-          docker compose up -d --build
+        run: docker compose up -d --build
 
       - name: Run Acceptance Gate
         shell: powershell
-        run: |
-          ./scripts/verify.ps1
+        run: ./scripts/verify.ps1
