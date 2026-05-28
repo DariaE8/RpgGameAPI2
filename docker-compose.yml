@@ -57,6 +57,20 @@ services:
     ports:
     - "9090:9090"
 
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail/config.yaml:/etc/promtail/config.yaml
+    depends_on:
+      - loki
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

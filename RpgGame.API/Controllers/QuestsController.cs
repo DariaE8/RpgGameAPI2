@@ -90,7 +90,7 @@ namespace RpgGame.API.Controllers
             
             _logger.LogInformation("Found {Count} quests in experience range {MinExp}-{MaxExp}", 
                 quests.Count(), minExp, maxExp);
-            return StatusCode(500);
+            return Ok(quests);
         }
 
         [HttpGet("{id}")]
