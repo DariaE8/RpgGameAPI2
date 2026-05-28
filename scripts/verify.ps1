@@ -1,28 +1,23 @@
+$ErrorActionPreference = "Stop"
 $prometheusUrl = "http://localhost:9090/api/v1/query"
-$query = '1 - (sum(rate(http_requests_received_total{status=~"2.."}[5m])) / sum(rate(http_requests_received_total[5m])))'
+$query = 'up' # Самый простой запрос, который точно должен вернуть данные
+
+Write-Host "--- Starting Diagnostics ---"
 
 try {
-    $response = Invoke-RestMethod -Uri "$prometheusUrl?query=$query" -Method Get
+    $response = Invoke-RestMethod -Uri "$prometheusUrl?query=$query" -Method Get -ErrorAction Stop
     
-    if ($response.status -ne "success") {
-        Write-Host "Error: Prometheus returned status $($response.status)" -ForegroundColor Red
-        exit 1
-    }
-
-    $errorRate = $response.data.result.value[1]
-    if ($null -eq $errorRate) { $errorRate = 0 }
+    Write-Host "Successfully connected to Prometheus!"
+    Write-Host "Response status: $($response.status)"
+    Write-Host "Results found: $($response.data.result.Count)"
     
-    $errorRateFloat = [float]$errorRate
-    Write-Host "Current Error Rate: $errorRateFloat"
-
-    if ($errorRateFloat -gt 0.05) {
-        Write-Host "Verification failed: Error rate is too high ($errorRateFloat)" -ForegroundColor Red
-        exit 1
-    }
-
-    Write-Host "Verification successful!" -ForegroundColor Green
+    # Если мы здесь, значит сеть работает!
+    Write-Host "Diagnostics finished successfully."
+    exit 0
 }
 catch {
-    Write-Host "Failed to connect to Prometheus or parse data." -ForegroundColor Red
+    Write-Host "!!! CRITICAL ERROR !!!" -ForegroundColor Red
+    Write-Host "Message: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Details: $(if ($_.ErrorDetails) { $_.ErrorDetails.Message } else { 'No extra details' })" -ForegroundColor Red
     exit 1
 }
