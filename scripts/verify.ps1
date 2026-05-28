@@ -1,23 +1,23 @@
 $ErrorActionPreference = "Stop"
-$prometheusUrl = "http://localhost:9090/api/v1/query"
-$query = 'up' # Самый простой запрос, который точно должен вернуть данные
+$prometheusUrl = "http://127.0.0.1:9090/api/v1/query"
+$query = "up"
 
-Write-Host "--- Starting Diagnostics ---"
+Write-Host "--- Starting Simple Diagnostics ---"
 
 try {
-    $response = Invoke-RestMethod -Uri "$prometheusUrl?query=$query" -Method Get -ErrorAction Stop
+    # Прямая передача URI без сложных конструкций
+    $uri = $prometheusUrl + "?query=" + $query
+    Write-Host "Attempting to connect to: $uri"
+    
+    $response = Invoke-RestMethod -Uri $uri -Method Get -ErrorAction Stop
     
     Write-Host "Successfully connected to Prometheus!"
-    Write-Host "Response status: $($response.status)"
-    Write-Host "Results found: $($response.data.result.Count)"
+    Write-Host "Status: $($response.status)"
     
-    # Если мы здесь, значит сеть работает!
-    Write-Host "Diagnostics finished successfully."
     exit 0
 }
 catch {
-    Write-Host "!!! CRITICAL ERROR !!!" -ForegroundColor Red
-    Write-Host "Message: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Details: $(if ($_.ErrorDetails) { $_.ErrorDetails.Message } else { 'No extra details' })" -ForegroundColor Red
+    Write-Host "!!! CONNECTION FAILED !!!" -ForegroundColor Red
+    Write-Host "Full Error: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
