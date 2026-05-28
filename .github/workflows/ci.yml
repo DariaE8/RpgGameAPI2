@@ -41,14 +41,18 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/rpggame-api:${{ github.sha }}
 
   deploy:
-    needs: docker-build-push
-    runs-on: self-hosted
+    needs: build 
+    runs-on: self-hosted 
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to Local Machine
-        shell: powershell
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Restart Application
         run: |
-          cd "${{ github.workspace }}"
-          docker compose down
           docker compose pull
           docker compose up -d
+
+      - name: Run Acceptance Gate
+        shell: powershell
+        run: |
+          ./scripts/verify.ps1

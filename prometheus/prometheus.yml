@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s # Собирать данные каждые 5 секунд (для тестов лучше почаще)
+
+scrape_configs:
+  - job_name: 'dotnet-app'
+    static_configs:
+      - targets: ['server:80'] # Имя сервиса из docker-compose и его внутренний порт
+    metrics_path: /metrics
