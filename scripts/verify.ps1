@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Stop"
-$prometheusUrl = "http://127.0.0.1:9990/api/v1/query"
+$prometheusUrl = "http://127.0.0.1:9090/api/v1/query"
 $query = '1 - (sum(rate(http_requests_received_total{status=~"2.."}[5m])) / sum(rate(http_requests_received_total[5m])))'
 
 Write-Host "--- Starting Final Verification ---"
