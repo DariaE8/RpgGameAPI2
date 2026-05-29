@@ -73,7 +73,19 @@ builder.Services.AddScoped<IGameLocationService, GameLocationService>();
 
 var app = builder.Build();
 
-app.UseHttpMetrics();
+app.UseHttpMetrics(options =>
+{
+    // Заставляем prometheus-net брать реальный путь из HTTP-контекста для лейбла "endpoint"
+    options.RequestCount.AdditionalLabels.Add("endpoint");
+    
+    // Переопределяем стандартное поведение: если маршрут пустой (404), пишем туда URL-путь запроса
+    app.Use((context, next) =>
+    {
+        var path = context.Request.Path.Value ?? "/";
+        context.Items["prometheus-net-route"] = path;
+        return next();
+    });
+});
 app.UseMiddleware<ServerIdMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>();
 app.MapHealthChecks("/health");
