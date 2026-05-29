@@ -21,7 +21,7 @@ services:
       retries: 5
 
   server:
-    image: ${DOCKER_USERNAME}/rpggameapi2-server:latest
+    image: nordlys8/rpggameapi2-server:latest
     build:
       context: .
       dockerfile: ./server/Dockerfile
