@@ -36,8 +36,6 @@ services:
         condition: service_healthy
     volumes:
       - ./RpgGame.API/Data:/app/Data
-    ports:
-      - "8080:80"
 
   nginx:
     image: nginx:alpine
