@@ -73,19 +73,23 @@ builder.Services.AddScoped<IGameLocationService, GameLocationService>();
 
 var app = builder.Build();
 
-app.UseHttpMetrics(options =>
+// 1. Сначала запускаем сборщик метрик — он начинает замерять время запроса
+app.UseHttpMetrics();
+
+// 2. Затем идет наш фикс для 404 ошибок
+app.Use(async (context, next) =>
 {
-    // Заставляем prometheus-net брать реальный путь из HTTP-контекста для лейбла "endpoint"
-    options.RequestCount.AdditionalLabels.Add("endpoint");
-    
-    // Переопределяем стандартное поведение: если маршрут пустой (404), пишем туда URL-путь запроса
-    app.Use((context, next) =>
+    await next(); // Запрос ушел дальше (и вернулся с кодом 404, если страница не найдена)
+
+    if (context.Response.StatusCode == 404)
     {
         var path = context.Request.Path.Value ?? "/";
-        context.Items["prometheus-net-route"] = path;
-        return next();
-    });
+        // Записываем путь, который UseHttpMetrics() прочитает при выходе из конвейера
+        context.Items["prometheus-net-route"] = path; 
+    }
 });
+
+// 3. Все остальные компоненты
 app.UseMiddleware<ServerIdMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>();
 app.MapHealthChecks("/health");
