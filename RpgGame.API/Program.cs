@@ -73,19 +73,25 @@ builder.Services.AddScoped<IGameLocationService, GameLocationService>();
 
 var app = builder.Build();
 
-// 1. Сначала запускаем сборщик метрик — он начинает замерять время запроса
+// 1. Оставляем стандартные метрики для рабочих эндпоинтов
 app.UseHttpMetrics();
 
-// 2. Затем идет наш фикс для 404 ошибок
+// 2. Добавляем жесткий фикс, который вручную запишет endpoint для 404 ошибок
 app.Use(async (context, next) =>
 {
-    await next(); // Запрос ушел дальше (и вернулся с кодом 404, если страница не найдена)
+    await next();
 
     if (context.Response.StatusCode == 404)
     {
         var path = context.Request.Path.Value ?? "/";
-        // Записываем путь, который UseHttpMetrics() прочитает при выходе из конвейера
-        context.Items["prometheus-net-route"] = path; 
+        
+        // Вручную обращаемся к счетчику prometheus-net и регистрируем этот эндпоинт
+        Metrics.CreateCounter("http_requests_received_total", "Labels", new CounterConfiguration
+        {
+            LabelNames = new[] { "code", "endpoint", "method", "instance", "job" }
+        })
+        .WithLabels("404", path, context.Request.Method, "server:80", "dotnet-app")
+        .Inc();
     }
 });
 
